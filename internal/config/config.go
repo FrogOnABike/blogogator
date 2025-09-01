@@ -14,24 +14,46 @@ type Config struct {
 	CurrentUserName string `json:"current_user_name"`
 }
 
+func (c Config) String() string {
+	return fmt.Sprintf("Database Connection URL: '%s' | User: '%s'", c.DbURL, c.CurrentUserName)
+}
+
 func Read() (Config, error) {
 	configRtn := Config{}
 	configFile, err := getConfigFilePath()
+	// fmt.Println(configFile)
 	if err != nil {
-		rawConfig, err := os.ReadFile(configFile)
-		if err != nil {
-			json.Unmarshal(rawConfig, &configRtn)
-		}
+		return configRtn, err
 	}
+	rawConfig, err := os.ReadFile(configFile)
+	if err != nil {
+		return configRtn, err
+	}
+	json.Unmarshal(rawConfig, &configRtn)
 	return configRtn, err
+}
+
+func SetUser(name string) error {
+	configFile, _ := getConfigFilePath()
+	newConfig, err := Read()
+	if err != nil {
+		newConfig.CurrentUserName = name
+		jsonData, err := json.Marshal(newConfig)
+		if err != nil {
+			fmt.Println(err)
+		}
+		os.WriteFile(configFile, jsonData, 0644)
+	}
+	return err
 }
 
 func getConfigFilePath() (string, error) {
 	configFilePath, err := os.UserHomeDir()
-	fmt.Println(configFilePath)
-	fmt.Println(filepath.Join(configFilePath, configFileName))
+	// fmt.Println(configFilePath)
+	// fmt.Println(filepath.Join(configFilePath, configFileName))
 	if err != nil {
-		return filepath.Join(configFilePath, configFileName), nil
+		return "Config file not found", err
 	}
-	return "Config file not found", err
+	return filepath.Join(configFilePath, configFileName), nil
+
 }

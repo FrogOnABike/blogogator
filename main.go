@@ -7,5 +7,17 @@ import (
 )
 
 func main() {
-	fmt.Println(config.Read())
+	configFile, err := config.Read()
+	if err != nil {
+		return
+	}
+	fmt.Println(configFile)
+
+	config.SetUser("mark")
+
+	configFileUpdated, err := config.Read()
+	if err != nil {
+		return
+	}
+	fmt.Println(configFileUpdated)
 }
