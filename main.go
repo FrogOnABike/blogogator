@@ -15,9 +15,9 @@ func main() {
 
 	config.SetUser("mark")
 
-	configFileUpdated, err := config.Read()
-	if err != nil {
-		return
-	}
-	fmt.Println(configFileUpdated)
+	// configFileUpdated, err := config.Read()
+	// if err != nil {
+	// 	return
+	// }
+	// fmt.Println(configFileUpdated)
 }
