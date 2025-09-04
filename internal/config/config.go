@@ -34,18 +34,12 @@ func Read() (Config, error) {
 }
 
 func SetUser(name string) error {
-	// configFilePath, _ := getConfigFilePath()
 	newConfig, err := Read()
 	if err != nil {
 		return err
-		// jsonData, err := json.Marshal(newConfig)
-		// if err != nil {
-		// 	fmt.Println(err)
-		// }
-		// os.WriteFile(newConfig, jsonData, 0644)
 	}
 	newConfig.CurrentUserName = name
-	fmt.Println(newConfig)
+	write(newConfig)
 	return nil
 }
 
@@ -58,4 +52,14 @@ func getConfigFilePath() (string, error) {
 	}
 	return filepath.Join(configFilePath, configFileName), nil
 
+}
+
+func write(cfg Config) error {
+	configFilePath, _ := getConfigFilePath()
+	jsonData, err := json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	os.WriteFile(configFilePath, jsonData, 0644)
+	return nil
 }

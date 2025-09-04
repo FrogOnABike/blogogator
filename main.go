@@ -9,15 +9,15 @@ import (
 func main() {
 	configFile, err := config.Read()
 	if err != nil {
-		return
+		fmt.Println(err)
 	}
 	fmt.Println(configFile)
 
 	config.SetUser("mark")
 
-	// configFileUpdated, err := config.Read()
-	// if err != nil {
-	// 	return
-	// }
-	// fmt.Println(configFileUpdated)
+	updatedCfg, err := config.Read()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(updatedCfg)
 }
