@@ -13,7 +13,7 @@ func main() {
 	}
 	fmt.Println(configFile)
 
-	config.SetUser("mark")
+	configFile.SetUser("mark")
 
 	updatedCfg, err := config.Read()
 	if err != nil {
