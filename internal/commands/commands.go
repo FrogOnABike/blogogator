@@ -16,6 +16,10 @@ type command struct {
 	Args []string
 }
 
+type commands struct {
+	Handlers map[string]func(*state, command) error
+}
+
 func handlerLogin(s *state, cmd command) error {
 	// Check that we only have a single username in the args slice, otherwise return an error
 	if len(cmd.Args) != 1 {
