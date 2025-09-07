@@ -20,6 +20,14 @@ type commands struct {
 	Handlers map[string]func(*state, command) error
 }
 
+// Method to run a given command, if the state exists
+func (c *commands) run(s *state, cmd command) error {
+
+}
+
+// ***Define handler functions of commands below***
+
+// Login command
 func handlerLogin(s *state, cmd command) error {
 	// Check that we only have a single username in the args slice, otherwise return an error
 	if len(cmd.Args) != 1 {

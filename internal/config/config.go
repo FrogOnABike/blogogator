@@ -14,10 +14,33 @@ type Config struct {
 	CurrentUserName string `json:"current_user_name"`
 }
 
+// Define a nice "Stringer" methdo to allow the Config construct to be printed as a string if called from functions like fmt.PrintLn()
 func (c Config) String() string {
 	return fmt.Sprintf("Database Connection URL: '%s' | User: '%s'", c.DbURL, c.CurrentUserName)
 }
 
+// Method to set username to a supplied one in the config file
+func (c Config) SetUser(name string) error {
+	newConfig, err := Read()
+	if err != nil {
+		return err
+	}
+	newConfig.CurrentUserName = name
+	write(newConfig)
+	return nil
+}
+
+// Helper function to obtain the path to the config file
+func getConfigFilePath() (string, error) {
+	configFilePath, err := os.UserHomeDir()
+	if err != nil {
+		return "Config file not found", err
+	}
+	return filepath.Join(configFilePath, configFileName), nil
+
+}
+
+// Read the config json file from the given path and return a Config struct
 func Read() (Config, error) {
 	configRtn := Config{}
 	configFile, err := getConfigFilePath()
@@ -33,27 +56,7 @@ func Read() (Config, error) {
 	return configRtn, err
 }
 
-func (c Config) SetUser(name string) error {
-	newConfig, err := Read()
-	if err != nil {
-		return err
-	}
-	newConfig.CurrentUserName = name
-	write(newConfig)
-	return nil
-}
-
-func getConfigFilePath() (string, error) {
-	configFilePath, err := os.UserHomeDir()
-	// fmt.Println(configFilePath)
-	// fmt.Println(filepath.Join(configFilePath, configFileName))
-	if err != nil {
-		return "Config file not found", err
-	}
-	return filepath.Join(configFilePath, configFileName), nil
-
-}
-
+// Write the given Config strut out to the config json on disk
 func write(cfg Config) error {
 	configFilePath, _ := getConfigFilePath()
 	jsonData, err := json.Marshal(cfg)
