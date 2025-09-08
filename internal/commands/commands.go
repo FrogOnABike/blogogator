@@ -20,9 +20,17 @@ type commands struct {
 	Handlers map[string]func(*state, command) error
 }
 
-// Method to run a given command, if the state exists
+// Method to run a given command, if it exists
 func (c *commands) run(s *state, cmd command) error {
-
+	handler, found := c.Handlers[cmd.Name]
+	if !found {
+		return errors.New("Command not found")
+	}
+	err := handler(s, cmd)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+	}
+	return nil
 }
 
 // ***Define handler functions of commands below***
@@ -36,7 +44,7 @@ func handlerLogin(s *state, cmd command) error {
 
 	err := s.Config.SetUser(cmd.Args[0])
 	if err != nil {
-		return err
+		fmt.Printf("Error: %v\n", err)
 	}
 	fmt.Println("Username set successfully")
 	return nil
