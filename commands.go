@@ -1,15 +1,9 @@
-package commands
+package main
 
 import (
 	"errors"
 	"fmt"
-
-	"github.com/frogonabike/blogogator/internal/config"
 )
-
-type state struct {
-	Config *config.Config
-}
 
 type command struct {
 	Name string
@@ -48,7 +42,7 @@ func handlerLogin(s *state, cmd command) error {
 		return errors.New("please enter a single username")
 	}
 
-	err := s.Config.SetUser(cmd.Args[0])
+	err := s.config.SetUser(cmd.Args[0])
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
