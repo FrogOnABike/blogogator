@@ -20,6 +20,9 @@ func main() {
 		config: &configFile,
 	}
 
+	comHandlers := commands(
+		"login", handlerLogin,
+	)
 	// fmt.Println(configFile)
 
 	// configFile.SetUser("mark")
