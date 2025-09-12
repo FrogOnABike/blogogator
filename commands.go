@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 )
 
 type command struct {
@@ -18,7 +19,7 @@ type commands struct {
 func (c *commands) run(s *state, cmd command) error {
 	handler, found := c.Handlers[cmd.Name]
 	if !found {
-		return errors.New("Command not found")
+		return errors.New("command not found")
 	}
 	err := handler(s, cmd)
 	if err != nil {
@@ -39,7 +40,7 @@ func (c *commands) register(name string, f func(*state, command) error) {
 func handlerLogin(s *state, cmd command) error {
 	// Check that we only have a single username in the args slice, otherwise return an error
 	if len(cmd.Args) != 1 {
-		return errors.New("please enter a single username")
+		log.Fatalf("please enter a username")
 	}
 
 	err := s.config.SetUser(cmd.Args[0])
