@@ -1,18 +1,23 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/frogonabike/blogogator/internal/config"
+	"github.com/frogonabike/blogogator/internal/database"
+	_ "github.com/lib/pq"
 )
 
 type state struct {
+	db     *database.Queries
 	config *config.Config
 }
 
 func main() {
-	// Read the saved config file and save point the state struct to it
+	// Read the saved config file and save a pointer to the state struct
 	configFile, err := config.Read()
 	if err != nil {
 		log.Fatalf("Unable to read config file:%v\n", err)
@@ -20,6 +25,19 @@ func main() {
 	curState := state{
 		config: &configFile,
 	}
+	// Pretty print the configFile for debugging
+	fmt.Println(configFile)
+
+	// Open connection to database
+	db, err := sql.Open("postgres", curState.config.DbURL)
+	if err != nil {
+		log.Fatalf("Error connecting to database:%v\n", err)
+	}
+	// Create a new dbQueries and store in state
+	dbQueries := database.New(db)
+	curState.db = dbQueries
+	fmt.Println(curState)
+
 	// Initialise the command hanlders struct
 	comHandlers := commands{Handlers: make(map[string]func(*state, command) error)}
 	// Register commands
