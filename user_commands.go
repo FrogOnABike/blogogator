@@ -1,9 +1,15 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
+	"time"
+
+	"github.com/google/uuid"
+
+	"github.com/frogonabike/blogogator/internal/database"
 )
 
 type command struct {
@@ -48,5 +54,20 @@ func handlerLogin(s *state, cmd command) error {
 		fmt.Printf("Error: %v\n", err)
 	}
 	fmt.Println("Username set successfully")
+	return nil
+}
+
+// Register user command
+func handlerRegister(s *state, cmd command) error {
+	if len(cmd.Args) < 1 {
+		return errors.New("please enter a username")
+	}
+	newUser := database.CreateUserParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      cmd.Args[0],
+	}
+	s.db.CreateUser(context.Background(), newUser)
 	return nil
 }

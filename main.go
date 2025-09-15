@@ -33,26 +33,32 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error connecting to database:%v\n", err)
 	}
+
 	// Create a new dbQueries and store in state
 	dbQueries := database.New(db)
 	curState.db = dbQueries
-	fmt.Println(curState)
+	// fmt.Println(curState)
 
 	// Initialise the command hanlders struct
 	comHandlers := commands{Handlers: make(map[string]func(*state, command) error)}
+
 	// Register commands
 	comHandlers.register("login", handlerLogin)
+	comHandlers.register("register", handlerRegister)
 
+	// ***Start of processing of user input***
+
+	// Check we have at least a command passed
 	args := os.Args
 	if len(args) < 2 {
 		log.Fatalf("Too few arguments\n")
 	}
-
+	// Parse the input: 0 - Always "gator", 1 - Command name, 2 > Arguments
 	cmd := command{
 		Name: args[1],
 		Args: args[2:],
 	}
-
+	// Attempt to run the command, returning any errors if it's unable too be run
 	err = comHandlers.run(&curState, cmd)
 	if err != nil {
 		log.Fatalf("Unable to run command:%v", err)
