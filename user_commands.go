@@ -68,6 +68,11 @@ func handlerRegister(s *state, cmd command) error {
 		UpdatedAt: time.Now(),
 		Name:      cmd.Args[0],
 	}
+	u, _ := s.db.GetUser(context.Background(), cmd.Args[0])
+	if u != nil {
+		log.Fatalf("User alreadu exists")
+	}
+
 	s.db.CreateUser(context.Background(), newUser)
 	return nil
 }
