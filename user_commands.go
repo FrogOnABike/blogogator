@@ -49,7 +49,11 @@ func handlerLogin(s *state, cmd command) error {
 		log.Fatalf("please enter a username")
 	}
 
-	err := s.config.SetUser(cmd.Args[0])
+	_, err := s.db.GetUser(context.Background(), cmd.Args[0])
+	if err != nil {
+		log.Fatalf("User not found")
+	}
+	err = s.config.SetUser(cmd.Args[0])
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
@@ -68,11 +72,21 @@ func handlerRegister(s *state, cmd command) error {
 		UpdatedAt: time.Now(),
 		Name:      cmd.Args[0],
 	}
-	u, _ := s.db.GetUser(context.Background(), cmd.Args[0])
-	if u != nil {
-		log.Fatalf("User alreadu exists")
+	_, err := s.db.GetUser(context.Background(), cmd.Args[0])
+	// If the GetUser func finds a match then a nil error is returned
+	// So nil err indicates an existing (duplicate) username
+	if err == nil {
+		log.Fatalf("User already exists")
 	}
 
-	s.db.CreateUser(context.Background(), newUser)
+	createdUser, err := s.db.CreateUser(context.Background(), newUser)
+	if err != nil {
+		return errors.New("unable to craete user")
+	}
+	err = s.config.SetUser(createdUser.Name)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+	}
+	fmt.Printf("User created successfully: %s\n", createdUser.Name)
 	return nil
 }

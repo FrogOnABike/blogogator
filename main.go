@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -26,7 +25,7 @@ func main() {
 		config: &configFile,
 	}
 	// Pretty print the configFile for debugging
-	fmt.Println(configFile)
+	// fmt.Println(configFile)
 
 	// Open connection to database
 	db, err := sql.Open("postgres", curState.config.DbURL)

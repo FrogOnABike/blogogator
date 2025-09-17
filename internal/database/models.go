@@ -5,6 +5,7 @@
 package database
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,4 +16,9 @@ type User struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Name      string
+}
+
+// Define a nice "Stringer" methdo to allow the User construct to be printed as a string if called from functions like fmt.PrintLn()
+func (c User) String() string {
+	return fmt.Sprintf("Name: %s | Created At: %v | Updated At: %v", c.Name, c.CreatedAt, c.UpdatedAt)
 }
