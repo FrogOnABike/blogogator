@@ -44,6 +44,7 @@ func main() {
 	// Register commands
 	comHandlers.register("login", handlerLogin)
 	comHandlers.register("register", handlerRegister)
+	comHandlers.register("reset", handlerReset)
 
 	// ***Start of processing of user input***
 
