@@ -45,7 +45,7 @@ func main() {
 	comHandlers.register("login", handlerLogin)
 	comHandlers.register("register", handlerRegister)
 	comHandlers.register("reset", handlerReset)
-	comHandlers.register("getusers", handlerGetUsers)
+	comHandlers.register("users", handlerGetUsers)
 
 	// ***Start of processing of user input***
 
@@ -62,7 +62,7 @@ func main() {
 	// Attempt to run the command, returning any errors if it's unable too be run
 	err = comHandlers.run(&curState, cmd)
 	if err != nil {
-		log.Fatalf("Unable to run command:%v", err)
+		log.Fatalf("Unable to run command:%v\n", err)
 	}
 
 	// fmt.Println(configFile)

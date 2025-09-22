@@ -81,7 +81,7 @@ func handlerRegister(s *state, cmd command) error {
 
 	createdUser, err := s.db.CreateUser(context.Background(), newUser)
 	if err != nil {
-		return errors.New("unable to craete user")
+		return errors.New("unable to create user")
 	}
 	err = s.config.SetUser(createdUser.Name)
 	if err != nil {
