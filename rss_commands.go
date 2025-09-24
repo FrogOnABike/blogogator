@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"encoding/xml"
+	"fmt"
 	"html"
 	"io"
+	"log"
 	"net/http"
+	"time"
 )
 
 type RSSFeed struct {
@@ -24,6 +27,7 @@ type RSSItem struct {
 	PubDate     string `xml:"pubDate"`
 }
 
+// Fetch an RSS feed from a given URL and return it as a struct
 func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	// Create the req
 	req, err := http.NewRequestWithContext(ctx, "GET", feedURL, nil)
@@ -52,9 +56,29 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	// Unescape Title and Description fields
 	rtnRSS.Channel.Description = html.UnescapeString(rtnRSS.Channel.Description)
 	rtnRSS.Channel.Title = html.UnescapeString(rtnRSS.Channel.Title)
-	for _, item := range rtnRSS.Channel.Item {
-		item.Title = html.UnescapeString(item.Title)
-		item.Description = html.UnescapeString(item.Description)
+	for i := range rtnRSS.Channel.Item {
+		rtnRSS.Channel.Item[i].Title = html.UnescapeString(rtnRSS.Channel.Item[i].Title)
+		rtnRSS.Channel.Item[i].Description = html.UnescapeString(rtnRSS.Channel.Item[i].Description)
 	}
 	return &rtnRSS, nil
+}
+
+// Handler for aggregating a feed
+func handlerAgg(s *state, cmd command) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	aggFeed, err := fetchFeed(ctx, "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		log.Fatalf("Error retrieving feed: %v\n", err)
+	}
+	// fmt.Println(aggFeed)
+	// Nicely format the output so it's simpler to read and debug!
+	fmt.Printf("Title: %s\n", aggFeed.Channel.Title)
+	fmt.Printf("Description: %s\n", aggFeed.Channel.Description)
+	for i, item := range aggFeed.Channel.Item {
+		fmt.Printf("Item Index %v\n", i)
+		fmt.Printf("Title: %s\n", item.Title)
+		fmt.Printf("Description: %s\n", item.Description)
+	}
+	return nil
 }

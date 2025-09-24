@@ -46,7 +46,7 @@ func main() {
 	comHandlers.register("register", handlerRegister)
 	comHandlers.register("reset", handlerReset)
 	comHandlers.register("users", handlerGetUsers)
-	comHandlers.register("agg", fetchFeed)
+	comHandlers.register("agg", handlerAgg)
 
 	// ***Start of processing of user input***
 
