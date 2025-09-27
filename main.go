@@ -47,7 +47,7 @@ func main() {
 	comHandlers.register("reset", handlerReset)
 	comHandlers.register("users", handlerGetUsers)
 	comHandlers.register("agg", handlerAgg)
-
+	comHandlers.register("addfeed", handlerAddFeed)
 	// ***Start of processing of user input***
 
 	// Check we have at least a command passed

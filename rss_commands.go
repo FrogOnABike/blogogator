@@ -9,8 +9,12 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/frogonabike/blogogator/internal/database"
+	"github.com/google/uuid"
 )
 
+// Structs to unmarshal XML data into
 type RSSFeed struct {
 	Channel struct {
 		Title       string    `xml:"title"`
@@ -63,7 +67,7 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	return &rtnRSS, nil
 }
 
-// Handler for aggregating a feed
+// Handler for aggregating a feed - **CURRENTLY USES A STATIC FEED**
 func handlerAgg(s *state, cmd command) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -80,5 +84,38 @@ func handlerAgg(s *state, cmd command) error {
 		fmt.Printf("Title: %s\n", item.Title)
 		fmt.Printf("Description: %s\n", item.Description)
 	}
+	return nil
+}
+
+func handlerAddFeed(s *state, cmd command) error {
+	if len(cmd.Args) < 2 {
+		log.Fatalf("Please enter a feed name and URL")
+	}
+	// Obtain details for the currently logged in user as per config file
+	curUser, err := s.db.GetUser(context.Background(), s.config.CurrentUserName)
+	if err != nil {
+		log.Fatalf("Unable to locate user: %v\n", err)
+	}
+	// Create the struct to hold data for new feed to be created
+	newFeed := database.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      cmd.Args[0],
+		Url:       cmd.Args[1],
+		UserID:    curUser.ID,
+	}
+	// Insert the new feed into db!
+	createdFeed, err := s.db.CreateFeed(context.Background(), newFeed)
+	if err != nil {
+		log.Fatalf("Unable to add feed: %v\n", err)
+	}
+	fmt.Printf("ID: %v\n", createdFeed.ID)
+	fmt.Printf("Created at: %v\n", createdFeed.CreatedAt)
+	fmt.Printf("Updated at: %v\n", createdFeed.UpdatedAt)
+	fmt.Printf("Name: %v\n", createdFeed.Name)
+	fmt.Printf("URL: %v\n", createdFeed.Url)
+	fmt.Printf("User ID: %v\n", createdFeed.UserID)
+
 	return nil
 }

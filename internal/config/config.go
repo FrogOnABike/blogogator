@@ -14,7 +14,7 @@ type Config struct {
 	CurrentUserName string `json:"current_user_name"`
 }
 
-// Define a nice "Stringer" methdo to allow the Config construct to be printed as a string if called from functions like fmt.PrintLn()
+// Define a nice "Stringer" method to allow the Config construct to be printed as a string if called from functions like fmt.PrintLn()
 func (c Config) String() string {
 	return fmt.Sprintf("Database Connection URL: '%s' | User: '%s'", c.DbURL, c.CurrentUserName)
 }

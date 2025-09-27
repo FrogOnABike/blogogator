@@ -17,7 +17,6 @@ func handlerReset(s *state, cmd command) error {
 }
 
 // GetUsers command - List the configured users and indicate who is currently logged in
-
 func handlerGetUsers(s *state, cmd command) error {
 	userList, err := s.db.GetUsers(context.Background())
 	if err != nil {
