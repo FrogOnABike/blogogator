@@ -87,6 +87,7 @@ func handlerAgg(s *state, cmd command) error {
 	return nil
 }
 
+// Handler for adding a feed to the database - associates with the currently logged in user
 func handlerAddFeed(s *state, cmd command) error {
 	if len(cmd.Args) < 2 {
 		log.Fatalf("Please enter a feed name and URL")
@@ -117,5 +118,17 @@ func handlerAddFeed(s *state, cmd command) error {
 	fmt.Printf("URL: %v\n", createdFeed.Url)
 	fmt.Printf("User ID: %v\n", createdFeed.UserID)
 
+	return nil
+}
+
+// Handle for displaying all feeds in the database, along with the user who created them
+func handlerFeeds(s *state, cmd command) error {
+	feedsList, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		log.Fatalf("Error retrieving feeds: %v\n", err)
+	}
+	for _, feed := range feedsList {
+		fmt.Printf("Feed: %s URL: %s Created By: %s\n", feed.Feedname, feed.Url, feed.Username)
+	}
 	return nil
 }
