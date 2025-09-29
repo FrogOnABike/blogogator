@@ -118,10 +118,22 @@ func handlerAddFeed(s *state, cmd command) error {
 	fmt.Printf("URL: %v\n", createdFeed.Url)
 	fmt.Printf("User ID: %v\n", createdFeed.UserID)
 
+	// Build out the new feed_follows record
+	newFF := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    createdFeed.UserID,
+		FeedID:    createdFeed.ID,
+	}
+	_, err = s.db.CreateFeedFollow(context.Background(), newFF)
+	if err != nil {
+		log.Fatalf("Unable to create entry: %v\n", err)
+	}
 	return nil
 }
 
-// Handle for displaying all feeds in the database, along with the user who created them
+// Handler for displaying all feeds in the database, along with the user who created them
 func handlerFeeds(s *state, cmd command) error {
 	feedsList, err := s.db.GetFeeds(context.Background())
 	if err != nil {
@@ -129,6 +141,56 @@ func handlerFeeds(s *state, cmd command) error {
 	}
 	for _, feed := range feedsList {
 		fmt.Printf("Feed: %s URL: %s Created By: %s\n", feed.Feedname, feed.Url, feed.Username)
+	}
+	return nil
+}
+
+// Handler for creating feed follows entries
+func handlerFollow(s *state, cmd command) error {
+	// Check we have *something* in the args **Could add validation here for URLS?**
+	if len(cmd.Args) < 1 {
+		log.Fatalf("Please specify an URL to follow")
+	}
+	// Get feed details if it exists so can use ID
+	feedDetails, err := s.db.GetFeed(context.Background(), cmd.Args[0])
+	if err != nil {
+		log.Fatalf("Unable to retrieve feed details: %v\n", err)
+	}
+	// Get user details so can use the ID
+	userDetails, err := s.db.GetUser(context.Background(), s.config.CurrentUserName)
+	if err != nil {
+		log.Fatalf("Unable to retrieve user details: %v\n", err)
+	}
+	// Build out the new feed_follows record
+	newFF := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    userDetails.ID,
+		FeedID:    feedDetails.ID,
+	}
+	ffEntry, err := s.db.CreateFeedFollow(context.Background(), newFF)
+	if err != nil {
+		log.Fatalf("Unable to create entry: %v\n", err)
+	}
+	fmt.Printf("Feed: %s\n", ffEntry.Feedname)
+	fmt.Printf("User: %s\n", ffEntry.Username)
+	return nil
+}
+
+// Handler for listing all feeds current user follows
+func handlerFollowing(s *state, cmd command) error {
+	userFeeds, err := s.db.GetFeedFollowsForUser(context.Background(), s.config.CurrentUserName)
+	if err != nil {
+		log.Fatalf("Unable to get feeds: %v\n", err)
+	}
+	if len(userFeeds) == 0 {
+		fmt.Println("No feeds currently followed")
+		return nil
+	}
+	fmt.Printf("Feeds followed by %s:\n", s.config.CurrentUserName)
+	for _, item := range userFeeds {
+		fmt.Printf("* %s\n", item.Feedname)
 	}
 	return nil
 }
