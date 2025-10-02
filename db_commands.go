@@ -8,11 +8,13 @@ import (
 
 // Reset command - Clears out the user database! **USE WITH CAUTION IN PROD!**
 func handlerReset(s *state, cmd command) error {
-	err := s.db.ResetUsers(context.Background())
-	if err != nil {
-		log.Fatalf("error resetting database: %v\n", err)
+	if err := s.db.ResetUsers(context.Background()); err != nil {
+		return fmt.Errorf("reset failed: %w", err)
 	}
-	fmt.Println("Users databse reset")
+	if err := s.config.SetUser(""); err != nil {
+		return fmt.Errorf("failed to clear current user: %w", err)
+	}
+	fmt.Println("Users database reset")
 	return nil
 }
 

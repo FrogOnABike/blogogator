@@ -42,15 +42,15 @@ func main() {
 	comHandlers := commands{Handlers: make(map[string]func(*state, command) error)}
 
 	// Register commands
-	comHandlers.register("login", handlerLogin)         // Login as given user
-	comHandlers.register("register", handlerRegister)   // Register new user
-	comHandlers.register("reset", handlerReset)         // Reset ALL THE THINGZ
-	comHandlers.register("users", handlerGetUsers)      // List registered users and display the current one
-	comHandlers.register("agg", handlerAgg)             // Retrieve a feed
-	comHandlers.register("addfeed", handlerAddFeed)     // Add a feed (name,url) and follows it for the user
-	comHandlers.register("feeds", handlerFeeds)         // List all feeds and who added them
-	comHandlers.register("follow", handlerFollow)       // Follow a given feed (url)
-	comHandlers.register("following", handlerFollowing) // Displays all feeds followed by logged in user
+	comHandlers.register("login", handlerLogin)                             // Login as given user
+	comHandlers.register("register", handlerRegister)                       // Register new user
+	comHandlers.register("reset", handlerReset)                             // Reset ALL THE THINGZ
+	comHandlers.register("users", handlerGetUsers)                          // List registered users and display the current one
+	comHandlers.register("agg", handlerAgg)                                 // Retrieve a feed
+	comHandlers.register("addfeed", middlewareLoggedIn(handlerAddFeed))     // Add a feed (name,url) and follows it for the user
+	comHandlers.register("feeds", handlerFeeds)                             // List all feeds and who added them
+	comHandlers.register("follow", middlewareLoggedIn(handlerFollow))       // Follow a given feed (url)
+	comHandlers.register("following", middlewareLoggedIn(handlerFollowing)) // Displays all feeds followed by logged in user
 
 	// ***Start of processing of user input***
 
