@@ -51,6 +51,7 @@ func main() {
 	comHandlers.register("feeds", handlerFeeds)                             // List all feeds and who added them
 	comHandlers.register("follow", middlewareLoggedIn(handlerFollow))       // Follow a given feed (url)
 	comHandlers.register("following", middlewareLoggedIn(handlerFollowing)) // Displays all feeds followed by logged in user
+	comHandlers.register("unfollow", middlewareLoggedIn(handlerUnfollow))   // Unfollows a given URL for the logged in user
 
 	// ***Start of processing of user input***
 

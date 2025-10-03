@@ -185,3 +185,20 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 	}
 	return nil
 }
+
+// Handler for unfollowing a feed for the logged in user
+func handlerUnfollow(s *state, cmd command, user database.User) error {
+	if len(cmd.Args) < 1 {
+		fmt.Println("Please specify a feed URL")
+		return nil
+	}
+	ufItem := database.UnFollowFeedParams{
+		Url:    cmd.Args[0],
+		UserID: user.ID,
+	}
+	err := s.db.UnFollowFeed(context.Background(), ufItem)
+	if err != nil {
+		return fmt.Errorf("unable to unfollow: %v", err)
+	}
+	return nil
+}
