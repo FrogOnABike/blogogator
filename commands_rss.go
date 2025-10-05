@@ -31,6 +31,8 @@ type RSSItem struct {
 	PubDate     string `xml:"pubDate"`
 }
 
+// *** General helper functions ***
+
 // Fetch an RSS feed from a given URL and return it as a struct
 func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	// Create the req
@@ -66,6 +68,22 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	}
 	return &rtnRSS, nil
 }
+
+// Scrape feeds - Fetches the oldest (or not yet fetched) feeds from the database, and prints the items to console
+func scrapeFeeds(s *state) error {
+	nextFeed, err := s.db.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		return fmt.Errorf("unable to retrieve: %v", err)
+	}
+	markedFeed := database.MarkFeedFetchedParams{
+		ID:                 nextFeed.ID,
+		LastFetchedAt.Time: time.Now(),
+	}
+	err = s.db.MarkFeedFetched(context.Background(), markedFeed)
+	return nil
+}
+
+// *** Handler Functions ***
 
 // Handler for aggregating a feed - **CURRENTLY USES A STATIC FEED**
 func handlerAgg(s *state, cmd command) error {
