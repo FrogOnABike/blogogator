@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
 	"fmt"
 	"html"
@@ -71,15 +72,39 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 
 // Scrape feeds - Fetches the oldest (or not yet fetched) feeds from the database, and prints the items to console
 func scrapeFeeds(s *state) error {
+	// Retreive the either the oldest or an unchecked feed
 	nextFeed, err := s.db.GetNextFeedToFetch(context.Background())
 	if err != nil {
 		return fmt.Errorf("unable to retrieve: %v", err)
 	}
-	markedFeed := database.MarkFeedFetchedParams{
-		ID:                 nextFeed.ID,
-		LastFetchedAt.Time: time.Now(),
+	// Define the struct to hold the fetch time (it's a SQL NullTime type, so need to do it this way...)
+	fetchedAt := sql.NullTime{
+		Time:  time.Now(),
+		Valid: true,
 	}
+	// Add that struct to the one we need to pass to the function!
+	markedFeed := database.MarkFeedFetchedParams{
+		ID:            nextFeed.ID,
+		LastFetchedAt: fetchedAt,
+	}
+	// Call the function to update the fetch time for the feed
 	err = s.db.MarkFeedFetched(context.Background(), markedFeed)
+	if err != nil {
+		return fmt.Errorf("unable to update entry: %v", err)
+	}
+	// Fetch the actual feed!
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	fetchedFeed, err := fetchFeed(ctx, nextFeed.Url)
+	if err != nil {
+		return fmt.Errorf("unable to retrieve feed: %v", err)
+	}
+	// Print feeds item titles to console
+	for _, item := range fetchedFeed.Channel.Item {
+		// fmt.Printf("Item Index %v\n", i)
+		fmt.Printf("Title: %s\n", item.Title)
+		// fmt.Printf("Description: %s\n", item.Description)
+	}
 	return nil
 }
 
