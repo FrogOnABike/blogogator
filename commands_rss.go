@@ -112,22 +112,35 @@ func scrapeFeeds(s *state) error {
 
 // Handler for aggregating a feed - **CURRENTLY USES A STATIC FEED**
 func handlerAgg(s *state, cmd command) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	aggFeed, err := fetchFeed(ctx, "https://www.wagslane.dev/index.xml")
+	if len(cmd.Args) < 1 {
+		fmt.Println("Please enter a duration such as 15m or 1h")
+	}
+	timeBetweenRequests, err := time.ParseDuration(cmd.Args[0])
 	if err != nil {
-		log.Fatalf("Error retrieving feed: %v\n", err)
+		return fmt.Errorf("unable to parse duration: %v", err)
 	}
-	// fmt.Println(aggFeed)
-	// Nicely format the output so it's simpler to read and debug!
-	fmt.Printf("Title: %s\n", aggFeed.Channel.Title)
-	fmt.Printf("Description: %s\n", aggFeed.Channel.Description)
-	for i, item := range aggFeed.Channel.Item {
-		fmt.Printf("Item Index %v\n", i)
-		fmt.Printf("Title: %s\n", item.Title)
-		fmt.Printf("Description: %s\n", item.Description)
+	fmt.Printf("Collecting feeds every %v\n", timeBetweenRequests)
+
+	ticker := time.NewTicker(timeBetweenRequests)
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
 	}
-	return nil
+
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
+	// aggFeed, err := fetchFeed(ctx, "https://www.wagslane.dev/index.xml")
+	// if err != nil {
+	// 	log.Fatalf("Error retrieving feed: %v\n", err)
+	// }
+	// // fmt.Println(aggFeed)
+	// // Nicely format the output so it's simpler to read and debug!
+	// fmt.Printf("Title: %s\n", aggFeed.Channel.Title)
+	// fmt.Printf("Description: %s\n", aggFeed.Channel.Description)
+	// for i, item := range aggFeed.Channel.Item {
+	// 	fmt.Printf("Item Index %v\n", i)
+	// 	fmt.Printf("Title: %s\n", item.Title)
+	// 	fmt.Printf("Description: %s\n", item.Description)
+	// }
 }
 
 // Handler for adding a feed to the database - associates with the currently logged in user
@@ -135,7 +148,6 @@ func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) < 2 {
 		log.Fatalf("Please enter a feed name and URL")
 	}
-
 	// Create the struct to hold data for new feed to be created
 	newFeed := database.CreateFeedParams{
 		ID:        uuid.New(),
