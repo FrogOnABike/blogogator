@@ -114,6 +114,7 @@ func scrapeFeeds(s *state) error {
 func handlerAgg(s *state, cmd command) error {
 	if len(cmd.Args) < 1 {
 		fmt.Println("Please enter a duration such as 15m or 1h")
+		return nil
 	}
 	timeBetweenRequests, err := time.ParseDuration(cmd.Args[0])
 	if err != nil {
