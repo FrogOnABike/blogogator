@@ -99,12 +99,18 @@ func scrapeFeeds(s *state) error {
 	if err != nil {
 		return fmt.Errorf("unable to retrieve feed: %v", err)
 	}
-	// Print feeds item titles to console
-	for _, item := range fetchedFeed.Channel.Item {
-		// fmt.Printf("Item Index %v\n", i)
-		fmt.Printf("Title: %s\n", item.Title)
-		// fmt.Printf("Description: %s\n", item.Description)
+	newPost := database.CreatePostParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
+	// // Print feeds item titles to console
+	// for _, item := range fetchedFeed.Channel.Item {
+	// 	// fmt.Printf("Item Index %v\n", i)
+	// 	fmt.Printf("Title: %s\n", item.Title)
+	// 	// fmt.Printf("Description: %s\n", item.Description)
+	// }
+
 	return nil
 }
 
