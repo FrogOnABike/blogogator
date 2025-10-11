@@ -109,6 +109,10 @@ func scrapeFeeds(s *state) error {
 
 	// Save posts to database
 	for _, item := range fetchedFeed.Channel.Item {
+		pubTime, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			return fmt.Errorf("unable to parse publish date: %v", err)
+		}
 		newPost := database.CreatePostParams{
 			ID:          uuid.New(),
 			CreatedAt:   time.Now(),
@@ -116,8 +120,15 @@ func scrapeFeeds(s *state) error {
 			Title:       item.Title,
 			Url:         item.Link,
 			Description: sql.NullString{String: item.Description, Valid: item.Description != ""},
+			PublishedAt: pubTime,
 			FeedID:      nextFeed.ID,
 		}
+		_, err = s.db.CreatePost(context.Background(), newPost)
+		if err != nil {
+			return fmt.Errorf("unable to save post: %v", err)
+		}
+		// Added for debugging so I can see which posts are saved
+		fmt.Printf("Post saved: %s\n", item.Title)
 	}
 	return nil
 }
