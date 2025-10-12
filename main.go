@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
@@ -58,7 +59,8 @@ func main() {
 	// Check we have at least a command passed
 	args := os.Args
 	if len(args) < 2 {
-		log.Fatalf("Too few arguments\n")
+		fmt.Println("Please enter a valid command")
+		return
 	}
 	// Parse the input: 0 - Always "gator", 1 - Command name, 2 > Arguments
 	cmd := command{
@@ -68,7 +70,7 @@ func main() {
 	// Attempt to run the command, returning any errors if it's unable too be run
 	err = comHandlers.run(&curState, cmd)
 	if err != nil {
-		log.Fatalf("Unable to run command:%v\n", err)
+		fmt.Printf("Unable to run command: %v\n", err)
 	}
 
 	// fmt.Println(configFile)

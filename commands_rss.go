@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/frogonabike/blogogator/internal/database"
@@ -125,7 +126,14 @@ func scrapeFeeds(s *state) error {
 		}
 		_, err = s.db.CreatePost(context.Background(), newPost)
 		if err != nil {
-			return fmt.Errorf("unable to save post: %v", err)
+			// Duplicate posts are expected, so we just ignore them and continue
+			if strings.Contains(err.Error(), "duplicate key value") {
+				// Added for debugging so I can see which posts are duplicates
+				// log.Printf("Post already exists: %s\n", item.Title)
+				continue
+			}
+			// Other errors we want to know about!
+			return err
 		}
 		// Added for debugging so I can see which posts are saved
 		fmt.Printf("Post saved: %s\n", item.Title)
@@ -149,7 +157,10 @@ func handlerAgg(s *state, cmd command) error {
 
 	ticker := time.NewTicker(timeBetweenRequests)
 	for ; ; <-ticker.C {
-		scrapeFeeds(s)
+		err := scrapeFeeds(s)
+		if err != nil {
+			return fmt.Errorf("error saving post: %v", err)
+		}
 	}
 
 	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

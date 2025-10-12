@@ -46,12 +46,12 @@ func handlerRegister(s *state, cmd command) error {
 	// If the GetUser func finds a match then a nil error is returned
 	// So nil err indicates an existing (duplicate) username
 	if err == nil {
-		log.Fatalf("User already exists")
+		return fmt.Errorf("user already exists")
 	}
 
 	createdUser, err := s.db.CreateUser(context.Background(), newUser)
 	if err != nil {
-		return errors.New("unable to create user")
+		return fmt.Errorf("unable to create user: %v", err)
 	}
 	err = s.config.SetUser(createdUser.Name)
 	if err != nil {
