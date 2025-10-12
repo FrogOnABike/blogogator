@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -291,6 +292,45 @@ func handlerUnfollow(s *state, cmd command, user database.User) error {
 	err := s.db.UnFollowFeed(context.Background(), ufItem)
 	if err != nil {
 		return fmt.Errorf("unable to unfollow: %v", err)
+	}
+	return nil
+}
+
+// Handler for browse command, to retrieve X most recent posts for user
+func handlerBrowse(s *state, cmd command, user database.User) error {
+	if len(cmd.Args) > 0 {
+		numPosts, err := strconv.Atoi(cmd.Args[0])
+		fmt.Printf("Input limit: %d\n", numPosts)
+		if err != nil {
+			return fmt.Errorf("unable to parse number of posts: %v", err)
+		}
+		if numPosts < 1 {
+			fmt.Println("Please enter a number higher than 1")
+			return nil
+		}
+		posts, err := s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+			UserID: user.ID,
+			Limit:  int32(numPosts),
+		})
+		if err != nil {
+			return fmt.Errorf("unable to retrieve posts: %v", err)
+		}
+		for _, post := range posts {
+			fmt.Printf("Title: %s\n", post)
+		}
+
+	} else {
+		numPosts := 2
+		posts, err := s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+			UserID: user.ID,
+			Limit:  int32(numPosts),
+		})
+		if err != nil {
+			return fmt.Errorf("unable to retrieve posts: %v", err)
+		}
+		for _, post := range posts {
+			fmt.Printf("Title: %s\n", post)
+		}
 	}
 	return nil
 }
