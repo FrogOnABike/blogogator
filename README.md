@@ -64,3 +64,17 @@ agg **time interval** - Will start retrieving all feeds for the logged in user a
 
 browse **optional number** - Will retrieve the newest X posts if a number is given, otherwise displays the 2 most recent posts from the database
 
+Possible future improvements:
+
+Extending the Project
+You've done all the required steps, but if you'd like to make this project your own, here are some ideas:
+
+Add sorting and filtering options to the browse command
+Add pagination to the browse command
+Add concurrency to the agg command so that it can fetch more frequently
+Add a search command that allows for fuzzy searching of posts
+Add bookmarking or liking posts
+Add a TUI that allows you to select a post in the terminal and view it in a more readable format (either in the terminal or open in a browser)
+Add an HTTP API (and authentication/authorization) that allows other users to interact with the service remotely
+Write a service manager that keeps the agg command running in the background and restarts it if it crashes
+
