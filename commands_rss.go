@@ -300,7 +300,7 @@ func handlerUnfollow(s *state, cmd command, user database.User) error {
 func handlerBrowse(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) > 0 {
 		numPosts, err := strconv.Atoi(cmd.Args[0])
-		fmt.Printf("Input limit: %d\n", numPosts)
+		// fmt.Printf("Input limit: %d\n", numPosts)
 		if err != nil {
 			return fmt.Errorf("unable to parse number of posts: %v", err)
 		}
